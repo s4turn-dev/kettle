@@ -1,30 +1,38 @@
-from signal import signal, SIGALRM, alarm
 from time import sleep
 from kettle import MiMak1
+from input_modification import input_with_timeout
 
 k = MiMak1()
 
 
-def handler(signum, frame):
-    print("Forever is over!")
-    raise Exception("end of time")
+def main(text):
+    print(text)
 
+    ans = input_with_timeout(1)
+    try:
+        ans = int(ans)
+    except (ValueError, TypeError):
+        ans = 'Не удалось распознать команду'
 
-def loop_forever():
-    import time
-    while 1:
-        print("sec")
-        time.sleep(1)
+    match ans:
+        case 1:
+            k.switch_status('power')
+        case 2:
+            k.switch_status('busy')
+        case _:
+            pass
 
+    if k.status['busy']:
+        k.boil()
 
-signal(SIGALRM, handler)
-alarm(10)
+    new_text = k.generate_response(ans)
+    main(new_text)
+
 
 print(f'Вас приветствует интерфейс взаимодействия с чайником {k}.\nДобро пожаловать!\n')
 
-for x in range(5):
-    try:
-        loop_forever()
-    except Exception as exc:
-        print(exc)
-        alarm(10)
+while k.status['power']:
+    text = f"\n1. {'Включить' if k.status['power'] else 'Выключить'} чайник" \
+           f"\n 2. {'Начать' if k.status['busy'] else 'Остановить'} кипячение" \
+           f'Введите команду [1-2]:'
+    main(text)

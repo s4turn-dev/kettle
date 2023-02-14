@@ -1,4 +1,5 @@
 from datetime import datetime as dt
+from typing_extensions import Literal
 
 
 class BasicKettle:
@@ -12,7 +13,9 @@ class BasicKettle:
         self.version = version
 
         self.status = {'power': True, 'busy': False}
-        self.current_temperature = self.starting_temperature presidence
+        self.current_temperature = self.starting_temperature
+
+        self.temperature_history = []
 
     def __str__(self):
         return f'{self.model}-{self.version}'
@@ -27,23 +30,30 @@ class BasicKettle:
     # ---------------
 
     # Main Functionality
-    def switch_power(self):
-        self.status['power'] = not self.status['power']
+    def switch_status(self, key: Literal['power', 'busy']):
+        self.status[key] = not self.status[key]
 
     def boil(self):
         self.current_temperature += round((self.maximum_temperature - self.current_temperature) / self.seconds_to_boil,
                                           1)
         self.seconds_to_boil -= 1
+
     # ---------------
 
     # User
-    def generate_response(self) -> dict:
-        response = {
-            'current_temperature': self.current_temperature,
-            'status': self.status,
-            '': 0
-        }
-        return response
+    def generate_response(self, last_command: Literal[1, 2, 'Не удалось распознать команду']):
+        text = ''
+
+        for number in self.temperature_history:
+            text += f'ТЕМПЕРАТУРА: {number}\n\n'
+
+        text += f'\n--------------------Предыдущая команда: {last_command}' \
+                f'\n' \
+                f"\n1. {'Включить' if self.status['power'] else 'Выключить'} чайник" \
+                f"\n 2. {'Начать' if self.status['busy'] else 'Остановить'} кипячение" \
+                f'Введите команду [1-2]:'
+
+        return text
     # ---------------
 
 

@@ -13,12 +13,7 @@ def _wait_for_enter(channel: queue.Queue, timeout: int = None):
         channel.put(line)
 
 
-def get_input(message, channel):
-    response = input(message)
-    channel.put(response)
-
-
-def input_with_timeout(message, timeout):
+def input_with_timeout(timeout):
     channel = queue.Queue()
     thread = threading.Thread(target=_wait_for_enter, args=(channel, timeout))
 
@@ -37,4 +32,4 @@ def input_with_timeout(message, timeout):
 
 if __name__ == "__main__":
     while True:
-    print(input_with_timeout('', 5))
+        print(input_with_timeout(5))
