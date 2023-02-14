@@ -4,54 +4,60 @@ from typing_extensions import Literal
 
 class BasicKettle:
     seconds_to_boil = 10
-    maximum_temperature = 100.0
-    starting_temperature = 20.0
+    max_temperature = 100.0
+    min_temperature = 20.0
+    temperature_cooling_step = 5.0
 
     # Dunders
     def __init__(self, name, version):
         self.model = name
         self.version = version
 
-        self.status = {'power': True, 'busy': False}
-        self.current_temperature = self.starting_temperature
+        self.is_powered = False
+        self.is_busy = False
+        self.current_temperature = self.min_temperature
 
-        self.temperature_history = []
+        self.logs = []
+        self.boiling_time_left = self.seconds_to_boil
 
     def __str__(self):
         return f'{self.model}-{self.version}'
     # ---------------
 
-    # Info Helpers
-    def is_on(self) -> bool:
-        return self.status['power']
-
-    def is_busy(self) -> bool:
-        return self.status['busy']
-    # ---------------
-
     # Main Functionality
-    def switch_status(self, key: Literal['power', 'busy']):
-        self.status[key] = not self.status[key]
+    def switch_power(self):
+        self.is_powered = not self.is_powered
+        self.logs.append(f"ЧАЙНИК {'ВКЛЮЧЕН' if self.is_powered else 'ОТКЛЮЧЕН'}")
 
-    def boil(self):
-        self.current_temperature += round((self.maximum_temperature - self.current_temperature) / self.seconds_to_boil,
-                                          1)
-        self.seconds_to_boil -= 1
+    def switch_busy(self):
+        self.is_busy = not self.is_busy
+        self.boling_time_left = self.seconds_to_boil
+        self.logs.append(f'{self.boiling_time_left, self.seconds_to_boil}')
+        self.logs.append(f"КИПЯЧЕНИЕ {'НАЧАТО' if self.is_busy else 'ОСТАНОВЛЕНО'}")
 
+    def boil(self):      
+        self.current_temperature += round((self.max_temperature - self.current_temperature) / self.boiling_time_left, 1)
+        self.boiling_time_left -= 1
+        if self.boiling_time_left == 0:
+            self.switch_busy()
+            self.logs.append('ЧАЙНИК ВСКИПЕЛ')
+    
+    def cool(self):
+        self.current_temperature -= self.temperature_cooling_step
+        if self.current_temperature < self.min_temperature:
+            self.current_temperature = self.min_temperature
     # ---------------
 
     # User
-    def generate_response(self, last_command: Literal[1, 2, 'Не удалось распознать команду']):
-        text = ''
-
-        for number in self.temperature_history:
-            text += f'ТЕМПЕРАТУРА: {number}\n\n'
-
-        text += f'\n--------------------Предыдущая команда: {last_command}' \
-                f'\n' \
-                f"\n1. {'Включить' if self.status['power'] else 'Выключить'} чайник" \
-                f"\n 2. {'Начать' if self.status['busy'] else 'Остановить'} кипячение" \
-                f'Введите команду [1-2]:'
+    def generate_response(self):
+        logs_text = '\n\n'.join(self.logs)
+        command_panel = f"1. {'Отключить' if self.is_powered else 'Включить'} чайник\n" \
+                        f"2. {'Остановить' if self.is_busy else 'Начать'} кипячение\n" \
+                        f"\n" \
+                        f"Введите команду [1-2]:"
+        text = f'{logs_text}\n' \
+               '--------------------\n' \
+               f'{command_panel}'
 
         return text
     # ---------------
