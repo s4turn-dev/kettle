@@ -1,28 +1,21 @@
-from datetime import datetime as dt
-from typing_extensions import Literal
+import config
 
 
 class BasicKettle:
-    seconds_to_boil = 10
-    max_temperature = 100.0
-    min_temperature = 20.0
-    temperature_cooling_step = 5.0
-
-    # Dunders
     def __init__(self, name, version):
         self.model = name
         self.version = version
+        self.logs = []
 
         self.is_powered = False
         self.is_busy = False
-        self.current_temperature = self.min_temperature
 
-        self.logs = []
-        self.boiling_time_left = self.seconds_to_boil
+        self.capacity = 0
+        self.current_temperature = config.TEMPERATURE_MIN
+        self.boiling_time_left = config.SECONDS_TO_BOIL
 
     def __str__(self):
         return f'{self.model}-{self.version}'
-    # ---------------
 
     # Main Functionality
     def switch_power(self):
@@ -31,21 +24,22 @@ class BasicKettle:
 
     def switch_busy(self):
         self.is_busy = not self.is_busy
-        self.boling_time_left = self.seconds_to_boil
-        self.logs.append(f'{self.boiling_time_left, self.seconds_to_boil}')
+        self.boiling_time_left = config.SECONDS_TO_BOIL
         self.logs.append(f"КИПЯЧЕНИЕ {'НАЧАТО' if self.is_busy else 'ОСТАНОВЛЕНО'}")
 
-    def boil(self):      
-        self.current_temperature += round((self.max_temperature - self.current_temperature) / self.boiling_time_left, 1)
+    def boil(self):
+        temperature_raising_step = round((config.TEMPERATURE_MAX - self.current_temperature) / self.boiling_time_left, 1)
+        self.current_temperature += temperature_raising_step
         self.boiling_time_left -= 1
+
         if self.boiling_time_left == 0:
             self.switch_busy()
             self.logs.append('ЧАЙНИК ВСКИПЕЛ')
     
     def cool(self):
-        self.current_temperature -= self.temperature_cooling_step
-        if self.current_temperature < self.min_temperature:
-            self.current_temperature = self.min_temperature
+        self.current_temperature -= config.TEMPERATURE_COOLING_STEP
+        if self.current_temperature < config.TEMPERATURE_MIN:
+            self.current_temperature = config.TEMPERATURE_MIN
     # ---------------
 
     # User
