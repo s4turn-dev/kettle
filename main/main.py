@@ -1,8 +1,10 @@
-from time import sleep
 from kettle import MiMak1
 from input_modification import input_with_timeout
 
 k = MiMak1()
+
+
+# HELPER FUNCTIONS
 def assure_input_is_int(inp):
     try:
         inp = int(inp)
@@ -37,6 +39,8 @@ def main(text):
     new_text = k.generate_response()
     main(new_text)
 
+
+# MAIN WORKFLOW
 print('\n' * 100)
 print(f'Вас приветствует интерфейс взаимодействия с чайником {k}.\nДобро пожаловать!\n\n')
 ans = assure_input_is_int(
