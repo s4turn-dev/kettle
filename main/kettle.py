@@ -1,6 +1,19 @@
 import config
 
 
+# Создан для того, чтобы передавать состояние чайника I/O менеджеру
+class KettleReport:
+    def __init__(self, is_powered: bool, is_busy: bool, is_waiting_water: bool, logs: list, water_amount: float, actions: dict):
+        self.is_powered = is_powered
+        self.is_busy = is_busy
+        self.is_waiting_water = is_waiting_water
+
+        self.logs = logs
+        self.water_amount = water_amount
+
+        self.actions = actions
+
+
 class BasicKettle:
     def __init__(self, name, version):
         self.model = name
@@ -9,13 +22,22 @@ class BasicKettle:
 
         self.is_powered = False
         self.is_busy = False
+        self.is_waiting_water = False
 
-        self.capacity = 0
+        self.water_amount = 0
         self.current_temperature = config.TEMPERATURE_MIN
         self.boiling_time_left = config.SECONDS_TO_BOIL
 
     def __str__(self):
         return f'{self.model}-{self.version}'
+
+    # Info Helpers
+    def is_full(self):
+        return True if self.water_amount == config.CAPACITY else False
+
+    def is_empty(self):
+        return True if self.water_amount == 0 else False
+    # ---------------
 
     # Main Functionality
     def switch_power(self):
@@ -23,9 +45,15 @@ class BasicKettle:
         self.logs.append(f"ЧАЙНИК {'ВКЛЮЧЕН' if self.is_powered else 'ОТКЛЮЧЕН'}")
 
     def switch_busy(self):
-        self.is_busy = not self.is_busy
-        self.boiling_time_left = self.seconds_to_boil
-        self.logs.append(f"КИПЯЧЕНИЕ {'НАЧАТО' if self.is_busy else 'ОСТАНОВЛЕНО'}")
+        if self.is_empty():
+            self.logs.append('ОШИБКА: Чайник пуст. Кипятить нечего. Налейте водички.')
+        else:
+            self.is_busy = not self.is_busy
+            self.boiling_time_left = config.SECONDS_TO_BOIL
+            self.logs.append(f"КИПЯЧЕНИЕ {'НАЧАТО' if self.is_busy else 'ОСТАНОВЛЕНО'}")
+
+    def switch_waiting_water(self):
+        self.is_waiting_water = not self.is_waiting_water
 
     def boil(self):
         temperature_raising_step = round((config.TEMPERATURE_MAX - self.current_temperature) / self.boiling_time_left, 1)
@@ -40,20 +68,36 @@ class BasicKettle:
         self.current_temperature -= config.TEMPERATURE_COOLING_STEP
         if self.current_temperature < config.TEMPERATURE_MIN:
             self.current_temperature = config.TEMPERATURE_MIN
+
+    def add_water(self, amount):
+        if self.water_amount + amount > config.CAPACITY:
+            self.water_amount = config.CAPACITY
+            self.logs.append(f"В чайнике {'не было' if self.water_amount == 0 else f'было {self.water_amount} л'} воды,"
+                             f"и вы попытались влить {amount} л.\n"
+                             'Теперь у вас есть полный чайник и лужа на полу.')
+        elif amount <= 0:
+            pass
+        else:
+            self.water_amount += amount
+            self.logs.append(F'ВНЕСЕНИЕ ВОДЫ В ЧАЙНИК: {amount} л')  # Хахаха, надо обязательно оставить именно такую формулировку
     # ---------------
 
     # User
-    def generate_response(self):
-        logs_text = '\n\n'.join(self.logs)
-        command_panel = f"1. {'Отключить' if self.is_powered else 'Включить'} чайник\n" \
-                        f"2. {'Остановить' if self.is_busy else 'Начать'} кипячение\n" \
-                        f"\n" \
-                        f"Введите номер команды [1-2]:"
-        text = f'{logs_text}\n' \
-               '--------------------\n' \
-               f'{command_panel}'
+    def generate_report(self):
+        actions_kettle_capable_of = {
+            'switch_power': self.switch_power,
+            'switch_busy': self.switch_busy,
+            'switch_waiting_water': self.switch_waiting_water,
+        }
 
-        return text
+        report = KettleReport(self.is_powered,
+                              self.is_busy,
+                              self.is_waiting_water,
+                              self.logs,
+                              self.water_amount,
+                              actions_kettle_capable_of
+                              )
+        return report
     # ---------------
 
 
