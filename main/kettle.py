@@ -24,7 +24,7 @@ class BasicKettle:
 
     def switch_busy(self):
         self.is_busy = not self.is_busy
-        self.boiling_time_left = config.SECONDS_TO_BOIL
+        self.boiling_time_left = self.seconds_to_boil
         self.logs.append(f"КИПЯЧЕНИЕ {'НАЧАТО' if self.is_busy else 'ОСТАНОВЛЕНО'}")
 
     def boil(self):
@@ -48,7 +48,7 @@ class BasicKettle:
         command_panel = f"1. {'Отключить' if self.is_powered else 'Включить'} чайник\n" \
                         f"2. {'Остановить' if self.is_busy else 'Начать'} кипячение\n" \
                         f"\n" \
-                        f"Введите команду [1-2]:"
+                        f"Введите номер команды [1-2]:"
         text = f'{logs_text}\n' \
                '--------------------\n' \
                f'{command_panel}'

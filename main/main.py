@@ -19,40 +19,41 @@ def main(text):
     print('\n' * 100)
     print(text)
 
-    ans = assure_input_is_int(
-            input_with_timeout(1)
-          )
+    if k.is_powered:
+        ans = assure_input_is_int(
+                input_with_timeout(1)
+              )
 
-    match ans:
-        case 1:
-            k.switch_power()
-        case 2:
-            k.switch_busy()
-        case _:
-            pass
+        match ans:
+            case 1:
+                k.switch_power()
+            case 2:
+                k.switch_busy()
+            case _:
+                pass
 
-    if k.is_busy:
-        k.boil()
-    else:
-        k.cool()
+        if k.is_busy:
+            k.boil()
+        else:
+            k.cool()
+        
+        new_text = k.generate_response()
+        main(new_text)
 
-    new_text = k.generate_response()
-    main(new_text)
 
 
 # MAIN WORKFLOW
 print('\n' * 100)
-print(f'Вас приветствует интерфейс взаимодействия с чайником {k}.\nДобро пожаловать!\n\n')
+print(f'Вас приветствует интерфейс взаимодействия с чайником {k}. Добро пожаловать!\n')
 ans = assure_input_is_int(
-        input('1. Включить чайник\n\nВведите команду:\n')
+        input('--------------------\n1. Включить чайник\n\nВведите номер команды (или любой текст, если желаете выйти) и нажмите Enter:\n')
       )
 
 match ans:
     case 1:
         k.switch_power()
         text = k.generate_response()
-        while k.is_powered:
-            main(text)
+        main(text)
     case _:
         pass
 
