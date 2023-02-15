@@ -1,10 +1,7 @@
-from kettle import MiMak1
 from input_modification import input_with_timeout
-from io_manager import CommandPanel
-
+from kettle import MiMak1
 
 k = MiMak1()
-cmd = CommandPanel()
 
 
 # HELPER FUNCTIONS
@@ -17,60 +14,52 @@ def assure_input_is_num(inp, num_func):
         return inp
 
 
-def main(interface_text, available_actions):
+def main(interface_text):
+    # Обновляем интерфейс консоли
     print('\n' * 100)
     print(interface_text)
 
-    if k.is_powered:
+    # Получаем команду (пользовательский ввод)
+    if k.isPowered:
         k.logs.append(f"ТЕМПЕРАТУРА: {k.current_temperature if not k.is_empty() else 'вода не обнаружена'}")
-
         ans = input_with_timeout(1)
+    else:
+        ans = input()
 
-        if k.is_waiting_water:
-            ans = assure_input_is_num(ans, float)
-            k.add_water(ans)
-            k.switch_waiting_water()
-
-        else:
-            ans = assure_input_is_num(ans, int)
-
-            match ans:
-                case 1:
+    # Решаем, что делать с вводом, в зависимости от того, ждет ли сейчас чайник воду
+    if k.isWaitingWater:
+        # "Наливаем" воду и перестаем ее ждать
+        ans = assure_input_is_num(ans, float)
+        k.add_water(ans)
+        k.switch_waiting_water()
+    else:
+        # Действуем по выданной команде
+        ans = assure_input_is_num(ans, int)
+        match ans:
+            case 1:
+                if k.isPowered:
+                    return
+                else:
                     k.switch_power()
-                case 2:
-                    k.switch_busy()
-                case _:
-                    pass
+            case 2:
+                k.switch_busy()
+            case 3:
+                k.switch_waiting_water()
+            case _:
+                pass
 
-        if k.is_busy:
-            k.boil()
-        else:
-            k.cool()
+    # Изменяем температуру воды
+    if k.isBusy:
+        k.boil()
+    else:
+        k.cool()
 
-        ket_rep = k.generate_report()
-        text, actions = cmd.generate_interface(ket_rep)
-        main()
+    new_interface = k.generate_CLI_interface()
+    main(new_interface)
 
 
 # MAIN WORKFLOW
-print('\n' * 100)
-text, actions = \
-    cmd.generate_interface(k.generate_report(),
-                           [
-                               f'Вас приветствует интерфейс взаимодействия с чайником {k}. Добро пожаловать!\n',
-                           ],
-                           )
-ans = input_with_timeout(1)
+interface = k.generate_CLI_interface()
+main(interface)
 
-ans = assure_input_is_num(ans, int)
-if ans in range(1, len(actions) + 1):
-    actions[ans]()
-match ans:
-    case 1:
-        k.switch_power()
-        text, actions = cmd.generate_interface(k.generate_report())
-        main(text)
-    case _:
-        pass
-
-print(f'\nСпасибо, что воспользовались {k}. Приятного чаепития!')
+print('\nПриятного чаепития!')
