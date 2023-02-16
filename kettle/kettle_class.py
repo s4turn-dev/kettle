@@ -22,7 +22,7 @@ class BasicKettle:
         return f'{self.model}-{self.version}'
 
     def is_full(self) -> bool:
-        return True if self.water_amount == config.CAPACITY else False
+        return True if self.water_amount == config.KETTLE_CAPACITY else False
 
     def is_empty(self) -> bool:
         return True if self.water_amount == 0 else False
@@ -67,12 +67,12 @@ class BasicKettle:
             pass
         else:
             # Чек на превышение вместимости
-            if self.water_amount + inserted_amount > config.CAPACITY:
+            if self.water_amount + inserted_amount > config.KETTLE_CAPACITY:
                 self.logger.full_log(
                     f"В чайнике {'не было' if self.is_empty() else f'было {self.water_amount} л'} воды, "
                     f"и вы попытались влить {inserted_amount} л. "
                     "Теперь у вас есть полный чайник и лужа на полу.") 
-                self.water_amount = config.CAPACITY
+                self.water_amount = config.KETTLE_CAPACITY
             # Вместимость не превышена и количество воды положительное
             else:
                 self.water_amount += inserted_amount
@@ -92,7 +92,7 @@ class BasicKettle:
         info_panel = "СОСТОЯНИЕ ЧАЙНИКА\n\n" \
                      f"ВКЛЮЧЕН: {'Да' if self.isPowered else 'Нет'}\n" \
                      f"КИПЯТИТ: {'Да' if self.isBusy else 'Нет'}\n" \
-                     f"ВОДА: {self.water_amount} / {config.CAPACITY} л" \
+                     f"ВОДА: {self.water_amount} / {config.KETTLE_CAPACITY} л" \
                      if config.SHOW_KETTLE_STATUS else None
 
         # Генерируем панель управления
