@@ -6,8 +6,8 @@ class BasicKettle:
     def __init__(self, name, version):
         self.model = name
         self.version = version
+
         self.logger = Logger(config.DB_FILEPATH, config.TXT_FILEPATH)
-        self.logs = []
         
         # camelCase-нейминг, чтобы не путать is-методы с is-атрибутами
         self.isPowered = False
@@ -21,10 +21,10 @@ class BasicKettle:
     def __str__(self):
         return f'{self.model}-{self.version}'
 
-    def is_full(self):
+    def is_full(self) -> bool:
         return True if self.water_amount == config.CAPACITY else False
 
-    def is_empty(self):
+    def is_empty(self) -> bool:
         return True if self.water_amount == 0 else False
 
 # Переключатели состояний
@@ -80,7 +80,7 @@ class BasicKettle:
                     f'ВНЕСЕНИЕ ВОДЫ В ЧАЙНИК: {inserted_amount} л')  # Хахаха, надо обязательно оставить именно такую формулировку
 # ---------------
 
-    def generate_CLI_interface(self, optional_message: str | None = None):
+    def generate_CLI_interface(self, optional_message: str | None = None) -> str:
         # Подтягиваем логи и склеиваем их в одну строку
         logs = self.logger.select_last_x_messages_from_db(config.LOG_LINES_AMOUNT_FOR_SCREEN)
         logs = '\n\n'.join(logs) 

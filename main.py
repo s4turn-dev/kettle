@@ -1,7 +1,10 @@
 from input_modification import input_with_timeout
 from kettle import MiMak1
+from datetime import datetime as dt
 
 k = MiMak1()
+k.logger.log_to_txt(f"{'-' * 30} ЗАПУСК ОТ {dt.today().strftime('%d.%m.%Y')} {'-' * 30}", False)
+k.logger.log_to_db(f"{'*' * 5} ЗАПУСК ОТ {dt.today().strftime('%d.%m.%Y')} {'*' * 5}")
 
 
 # HELPER FUNCTIONS

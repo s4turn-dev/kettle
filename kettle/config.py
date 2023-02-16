@@ -2,7 +2,6 @@
 KETTLE_CAPACITY = 1.0
 TEMPERATURE_MAX = 100.0
 TEMPERATURE_MIN = 20.0
-CAPACITY = 1.0
 
 # Константы, влияющие на поведение температуры чайника
 SECONDS_TO_BOIL = 10

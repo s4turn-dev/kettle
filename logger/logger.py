@@ -7,9 +7,6 @@ class Logger:
         self.dbFilepath = db_filepath
         self.txtFilepath = txt_filepath
 
-        self.log_to_txt(f"{'-' * 30} ЗАПУСК ОТ {dt.today().strftime('%d.%m.%Y')} {'-' * 30}", False)
-        self.log_to_db(f"{'*' * 5} ЗАПУСК ОТ {dt.today().strftime('%d.%m.%Y')} {'*' * 5}")
-
     def log_to_txt(self, message: str, prettify: bool = True):
         """
         Записывает переданную строку в текстовый файл по пути, указанном при инициализации объекта класса
