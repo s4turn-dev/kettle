@@ -21,26 +21,33 @@ def main(interface_text):
 
     # Получаем команду (пользовательский ввод)
     if k.isPowered:
-        k.logs.append(f"ТЕМПЕРАТУРА: {k.current_temperature if not k.is_empty() else 'вода не обнаружена'}")
+        k.logger.full_log(f"ТЕМПЕРАТУРА: {f'{k.current_temperature}°C' if not k.is_empty() else 'вода не обнаружена'}")
+        # Поскольку по ТЗ необходимо ежесекундно сообщать температуру воды, когда чайник включен,
+        # то и ввода бесконечно ждать нельзя, поэтому используем ввод с таймаутом
         ans = input_with_timeout(1)
     else:
         ans = input()
 
     # Решаем, что делать с вводом, в зависимости от того, ждет ли сейчас чайник воду
     if k.isWaitingWater:
-        # "Наливаем" воду и перестаем ее ждать
         ans = assure_input_is_num(ans, float)
-        k.add_water(ans)
-        k.switch_waiting_water()
+
+        if ans == 0:
+            pass
+        # "Наливаем" воду и перестаем ее ждать
+        else:
+            k.add_water(ans)
+            k.switch_waiting_water()
     else:
-        # Действуем по выданной команде
         ans = assure_input_is_num(ans, int)
+
+        # Действуем по выданной команде
         match ans:
             case 1:
-                if k.isPowered:
+                k.switch_power()
+                # Лучшее, к чему я смог придти в своей реализации, соответствующее "закончить программу, если чайник выключается" из ТЗ
+                if not k.isPowered:
                     return
-                else:
-                    k.switch_power()
             case 2:
                 k.switch_busy()
             case 3:
@@ -59,7 +66,7 @@ def main(interface_text):
 
 
 # MAIN WORKFLOW
-interface = k.generate_CLI_interface()
+interface = k.generate_CLI_interface(f'Вас приветствует интерфейс взаимодействия с электройчаником {k}. Добро пожаловать!')
 main(interface)
 
 print('\nПриятного чаепития!')

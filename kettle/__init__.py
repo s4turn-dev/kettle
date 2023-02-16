@@ -1,1 +1,1 @@
-from .kettle import MiMak1
+from .kettle_class import *
