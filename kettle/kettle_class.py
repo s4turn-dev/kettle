@@ -30,10 +30,12 @@ class BasicKettle:
 # Переключатели состояний
     def switch_power(self):
         self.isPowered = not self.isPowered
+        if self.isBusy:
+            self.switch_busy()
         self.logger.full_log(f"ЧАЙНИК {'ВКЛЮЧЕН' if self.isPowered else 'ОТКЛЮЧЕН'}")
 
     def switch_busy(self):
-        if not self.isPowered:
+        if not self.isPowered and not self.isBusy:
             self.logger.full_log('ОШИБКА: Чайник отключен. Включите, чтобы кипятить.')
         elif self.is_empty() and not self.isBusy:
             self.logger.full_log('ОШИБКА: Чайник пуст. Кипятить нечего. Налейте водички.')
@@ -48,13 +50,14 @@ class BasicKettle:
 
 # Основной функционал
     def boil(self):
-        temperature_raising_step = round((config.TEMPERATURE_MAX - self.current_temperature) / self.boiling_time_left, 1)
-        self.current_temperature += temperature_raising_step
-        self.boiling_time_left -= 1
+        if self.isPowered and self.isBusy:
+            temperature_raising_step = round((config.TEMPERATURE_MAX - self.current_temperature) / self.boiling_time_left, 1)
+            self.current_temperature += temperature_raising_step
+            self.boiling_time_left -= 1
 
-        if self.boiling_time_left == 0:
-            self.switch_busy()
-            self.logger.full_log('ЧАЙНИК ВСКИПЕЛ')
+            if self.boiling_time_left == 0:
+                self.switch_busy()
+                self.logger.full_log('ЧАЙНИК ВСКИПЕЛ')
 
     def cool(self):
         self.current_temperature -= config.TEMPERATURE_COOLING_STEP
