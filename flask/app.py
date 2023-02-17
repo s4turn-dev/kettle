@@ -11,6 +11,7 @@ turbo = Turbo(app)
 k = MiMak1()
 
 
+# Ежесекундное обновление температуры чайника
 def update_temperature():
     with app.app_context():
         while True:
@@ -27,6 +28,7 @@ def update_temperature():
             turbo.push(turbo.replace(render_template('state_table.html'), 'state_table'))
 
 
+# Отдельный тред для пингования функции обновления температуры
 with app.app_context():
     threading.Thread(target=update_temperature).start()
 
@@ -36,16 +38,19 @@ def index():
     return render_template('kettle.html')
 
 
+# Динамичная отзывчивость в ответ на команды чайнику
 @app.post('/')
 def change_kettle_state():
-    action = request.form.to_dict()
-    match list(action.keys())[0]:
+    # Я не знаю, как вкратце описать этот странноватый код, поэтому порекомендую глянуть на код
+    # templates/command_panel.html: он даст больше контекста о том, что тут происходит, чем могу я
+    commanded_action = list(request.form.to_dict().keys())[0]
+    match commanded_action:
         case 'power':
             k.switch_power()
         case 'busy':
             k.switch_busy()
         case 'inserted_amount':
-            inserted_amount = action.get('inserted_amount')
+            inserted_amount = request.form.get(commanded_action)
             k.add_water(float(inserted_amount) if inserted_amount else 0)
 
     return turbo.stream([
@@ -54,6 +59,7 @@ def change_kettle_state():
     ])
 
 
+# Подгрузчик актуальной информации о чайнике в контекст приложения
 @app.context_processor
 def get_kettle_state():
     return {
