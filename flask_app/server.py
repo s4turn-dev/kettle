@@ -1,4 +1,4 @@
-from app import app, k
+from .app import app, k
 from datetime import datetime as dt
 
 if __name__ == '__main__':
