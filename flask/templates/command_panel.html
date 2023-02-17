@@ -1,0 +1,17 @@
+<div id="command_panel" class="command_panel">
+    <h3>ПАНЕЛЬ УПРАВЛЕНИЯ</h3>
+    <div class="commands">
+        <form action="" method="post">
+            <input type="hidden" name="power">
+            <input type="submit" value="{{ isPowered.action }} ЧАЙНИК">
+        </form>
+        <form id="boil_button" action="" method="post">
+            <input type="hidden" name="busy">
+            <input type="submit" value="{{ isBusy.action }} КИПЯЧЕНИЕ">
+        </form>
+        <form id="insert_water" action="" method="post">
+            <input name="inserted_amount" type="number" min="0" step="any" placeholder="Кол-во воды, напр. 4.2">
+            <input type="submit" value="ВЛИТЬ ВОДИЧКИ">
+        </form>
+    </div>
+</div>

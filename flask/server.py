@@ -1,3 +1,7 @@
-from flask import Flask
+from app import app, k
+from datetime import datetime as dt
 
-app = Flask()
+if __name__ == '__main__':
+    app.run(debug=True)
+    k.logger.log_to_txt(f"{'-' * 30} ЗАПУСК ОТ {dt.today().strftime('%d.%m.%Y')} {'-' * 30}", False)
+    k.logger.log_to_db(f"{'*' * 5} ЗАПУСК ОТ {dt.today().strftime('%d.%m.%Y')} {'*' * 5}")

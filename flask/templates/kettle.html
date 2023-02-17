@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Kettle</title>
+    <link href="static/stylesheets/styles.css" rel="stylesheet">
+    {{ turbo() }}
+  </head>
+  <body>
+    <div class="content">
+      {% include 'state_table.html' %}
+      {% include 'command_panel.html' %}
+    </div>
+  </body>
+</html>

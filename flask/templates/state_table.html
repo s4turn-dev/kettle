@@ -1,0 +1,10 @@
+<div id="state_table" class="state_table">
+    <h3>СОСТОЯНИЕ ЧАЙНИКА</h3>
+    <hr>
+    <table>
+        <tr><th>ВКЛЮЧЕН</th><td>{{ isPowered.status }}</td></tr>
+        <tr><th>КИПЯТИТ</th><td>{{ isBusy.status }}</td></tr>
+        <tr><th>ВОДА</th><td>{{ water_amount }} / {{ capacity }} л</td></tr>
+        <tr><th>ТЕМПЕРАТУРА</th><td>{{ temperature }}</td></tr>
+    </table>
+</div>
